@@ -1,0 +1,55 @@
+# Development Dockerfile with debug tools
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    cmake \
+    git \
+    curl \
+    wget \
+    vim \
+    nano \
+    libffi-dev \
+    libssl-dev \
+    libsndfile1 \
+    libportaudio2 \
+    portaudio19-dev \
+    libavcodec-extra \
+    libavformat-dev \
+    libavutil-dev \
+    libswresample-dev \
+    pulseaudio \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+# Install debugging tools
+RUN pip install debugpy pytest pytest-cov pytest-asyncio
+
+# Create non-root user for development
+RUN useradd -m -u 1000 -s /bin/bash developer && \
+    mkdir -p /app/data && \
+    chown -R developer:developer /app
+
+USER developer
+
+# Set environment variables
+ENV PYTHONPATH=/app/src:$PYTHONPATH
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/home/developer/.local/bin:${PATH}"
+
+# Expose ports
+EXPOSE 8000  # API
+EXPOSE 8765  # WebSocket
+EXPOSE 5678  # Debugger
+
+CMD ["python", "-m", "src.main"]

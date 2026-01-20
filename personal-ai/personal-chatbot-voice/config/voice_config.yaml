@@ -1,0 +1,40 @@
+# TTS Provider Selection
+tts_provider: "elevenlabs"  # elevenlabs, openai, pyttsx3, edge, xtts
+
+# Voice Settings
+voice:
+  id: "21m00Tcm4TlvDq8ikWAM"  # Rachel voice
+  stability: 0.5
+  similarity_boost: 0.75
+  style: 0.0
+  use_speaker_boost: true
+
+# Speech Parameters
+speech:
+  rate: 150
+  pitch: 50
+  volume: 1.0
+  language: "en"
+  voice_style: "neutral"  # neutral, cheerful, sad, angry, etc.
+
+# Voice Cloning
+voice_cloning:
+  enabled: false
+  model_path: "./models/tts/xtts_v2"
+  reference_audio: "./data/voice_profiles/user_voice/reference.wav"
+  similarity_threshold: 0.8
+
+# Audio Output
+output:
+  format: "mp3"
+  sample_rate: 24000
+  bitrate: "128k"
+  normalize: true
+  compression: true
+
+# Prosody Control
+prosody:
+  pause_duration: 0.2
+  emphasis_words: true
+  sentence_breaks: true
+  emotional_intonation: true

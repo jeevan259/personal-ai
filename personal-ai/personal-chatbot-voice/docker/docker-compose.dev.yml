@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  voice-assistant-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: personal-voice-assistant-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "8765:8765"
+      - "5678:5678"  # Debug port
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      - PYDEVD_WARN_EVALUATION_TIMEOUT=30
+    volumes:
+      - ../src:/app/src
+      - ../config:/app/config
+      - ../tests:/app/tests
+      - ../scripts:/app/scripts
+      - assistant-data-dev:/app/data
+      - assistant-models-dev:/app/models
+      # Hot reload for Python files
+      - ./docker/start-dev.sh:/app/start-dev.sh
+    command: /app/start-dev.sh
+    networks:
+      - assistant-dev-network
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    stdin_open: true
+    tty: true
+
+  chroma-db-dev:
+    image: chromadb/chroma:latest
+    container_name: chroma-db-dev
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.token_authn.TokenAuthenticationServerProvider
+      - CHROMA_SERVER_AUTHN_CREDENTIALS=test-token
+      - CHROMA_SERVER_AUTHZ_PROVIDER=chromadb.auth.basic_authz.BasicAuthorizationServerProvider
+      - CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=X_CHROMA_TOKEN
+      - ANONYMIZED_TELEMETRY=FALSE
+    volumes:
+      - chroma-data-dev:/chroma/chroma
+    networks:
+      - assistant-dev-network
+
+  ollama-dev:
+    image: ollama/ollama:latest
+    container_name: ollama-dev
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    volumes:
+      - ollama-models-dev:/root/.ollama
+    networks:
+      - assistant-dev-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data-dev:/data
+    networks:
+      - assistant-dev-network
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - assistant-dev-network
+
+volumes:
+  assistant-data-dev:
+  assistant-models-dev:
+  chroma-data-dev:
+  ollama-models-dev:
+  redis-data-dev:
+
+networks:
+  assistant-dev-network:
+    driver: bridge

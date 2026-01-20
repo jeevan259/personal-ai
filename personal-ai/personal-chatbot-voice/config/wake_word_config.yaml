@@ -1,0 +1,36 @@
+# Wake Word Engine
+engine: "porcupine"  # porcupine, custom, snowboy
+
+# Porcupine Settings (if using porcupine)
+porcupine:
+  access_key: "${PORCUPINE_ACCESS_KEY}"
+  keywords: ["computer", "hey siri", "alexa"]
+  sensitivities: [0.7, 0.7, 0.7]
+  model_path: "./models/wake_word/porcupine_params.pv"
+
+# Custom Wake Word (if using custom)
+custom:
+  model_path: "./models/wake_word/wake_word.ppn"
+  threshold: 0.7
+  sample_rate: 16000
+  input_channels: 1
+
+# Detection Settings
+detection:
+  timeout: 5  # seconds
+  cooldown: 2  # seconds between detections
+  confirmation_beep: true
+  led_indicator: false  # For hardware integration
+
+# Audio Settings for Wake Word
+audio:
+  sample_rate: 16000
+  frame_length: 512
+  channels: 1
+  device_index: null
+
+# Performance
+performance:
+  use_gpu: false
+  thread_count: 1
+  buffer_size: 1024

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  voice-chatbot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: voice-chatbot
+    ports:
+      - "8000:8000"
+      - "8765:8765"  # WebSocket port
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./config:/app/config
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    devices:
+      - /dev/snd:/dev/snd  # For audio input/output
+    networks:
+      - voice-network
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data/memory_db/chroma_db:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    networks:
+      - voice-network
+
+networks:
+  voice-network:
+    driver: bridge

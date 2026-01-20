@@ -1,0 +1,36 @@
+# Model selection
+model:
+  primary: "gpt-4-turbo"
+  fallback: "gpt-3.5-turbo"
+  embedding: "text-embedding-ada-002"
+
+# Response settings
+response:
+  max_tokens: 150
+  temperature: 0.7
+  top_p: 0.9
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+
+# Streaming
+streaming:
+  enabled: true
+  chunk_size: 50
+  delay: 0.1
+
+# Prompt templates
+prompt_templates:
+  system: "config/personas/default_voice.yaml"
+  short_response: "src/core/prompt_templates/short_response.jinja2"
+  conversation: "src/core/prompt_templates/conversation.jinja2"
+
+# Caching
+caching:
+  enabled: true
+  ttl_seconds: 3600
+  max_size: 1000
+
+# Rate limiting
+rate_limiting:
+  requests_per_minute: 60
+  tokens_per_minute: 90000

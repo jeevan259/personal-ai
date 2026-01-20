@@ -1,0 +1,96 @@
+# Embedding Model Configuration
+
+models:
+  # Available embedding models
+  local:
+    sentence_transformers:
+      enabled: true
+      model_name: "all-MiniLM-L6-v2"
+      device: "cpu"  # cpu or cuda
+      cache_folder: "models/embeddings/sentence_transformers"
+      
+    fasttext:
+      enabled: false
+      model_path: "models/embeddings/fasttext/cc.en.300.bin"
+      
+  cloud:
+    openai:
+      enabled: false
+      model: "text-embedding-3-small"
+      dimensions: 1536
+      api_key: "${OPENAI_API_KEY}"
+      
+    cohere:
+      enabled: false
+      model: "embed-english-v3.0"
+      api_key: "${COHERE_API_KEY}"
+
+vector_stores:
+  # Vector database configurations
+  chroma:
+    enabled: true
+    path: "data/memory_db/chroma"
+    collection_name: "assistant_memories"
+    embedding_function: "sentence_transformers"
+    persist: true
+    
+  qdrant:
+    enabled: false
+    url: "http://localhost:6333"
+    collection_name: "assistant_memories"
+    embedding_size: 384
+    
+  pinecone:
+    enabled: false
+    api_key: "${PINECONE_API_KEY}"
+    environment: "us-west1-gcp"
+    index_name: "assistant-index"
+
+embedding_settings:
+  # Text preprocessing for embeddings
+  preprocessing:
+    clean_text: true
+    remove_stopwords: false
+    lowercase: true
+    remove_punctuation: false
+    lemmatize: false
+    
+  # Chunking strategy
+  chunking:
+    method: "recursive"  # recursive, fixed, semantic
+    chunk_size: 512  # tokens
+    chunk_overlap: 50  # tokens
+    max_chunks: 1000
+    
+  # Metadata
+  include_metadata: true
+  metadata_fields:
+    - "source"
+    - "timestamp"
+    - "type"
+    - "confidence"
+
+retrieval:
+  # Retrieval settings
+  similarity_metric: "cosine"  # cosine, euclidean, dot
+  top_k: 5
+  score_threshold: 0.7
+  rerank: false
+  
+  # Hybrid search
+  enable_hybrid_search: true
+  keyword_weight: 0.3
+  semantic_weight: 0.7
+
+indexing:
+  # Batch processing
+  batch_size: 32
+  max_concurrent: 4
+  
+  # Update strategy
+  incremental_updates: true
+  reindex_threshold: 1000  # documents
+  
+  # Performance
+  use_gpu: false
+  threads: 4
